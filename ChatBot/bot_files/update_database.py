@@ -7,7 +7,7 @@ from langchain.document_loaders import PagedPDFSplitter
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores.faiss import FAISS
-from bot_files.config import setup_key
+from config import setup_key
 
 setup_key()#OpenAI key
 ResumeLocation = os.getcwd()
