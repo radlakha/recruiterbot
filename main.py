@@ -71,7 +71,7 @@ def send_mail(**kwargs):
     if request.method == 'POST':
         r = requests.post('https://www.google.com/recaptcha/api/siteverify',
                           data={'secret':
-                                '6LcwpCwmAAAAAKa3NaVIRjyNSterQfA4ETZ_ltK8',
+                                captchaSecretKey,
                                 'response':
                                 request.form['g-recaptcha-response']})
 
