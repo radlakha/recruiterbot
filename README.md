@@ -15,7 +15,6 @@
     - Issue command `make install`
 
 - How to run the bot
-    - Add your OpenAI key in "bot_files/config.py"
     - Change your directory to /ChatBot `cd /workspaces/recruiterbot/ChatBot`
     - To run on available embedding database run index.py and open localhost to see the UI `python index.py`
  
