@@ -1,26 +1,27 @@
+import os
+from dotenv.main import load_dotenv 
+
+import requests
+from flask_recaptcha import ReCaptcha
 from flask import *
 from flask_mail import Mail, Message
-from flask_sqlalchemy import SQLAlchemy
-import uuid  # for public id
-# imports for PyJWT authentication
-import jwt
-from datetime import datetime, timedelta
-from bs4 import BeautifulSoup as bs
-import os
-from dotenv.main import load_dotenv
-from flask_recaptcha import ReCaptcha
-import requests
+from flask_sqlalchemy import SQLAlchemy # A basic SQL databse
 
+import uuid  # for public id
+import jwt   # for JWT creation
+from datetime import datetime, timedelta # for encoding time of creation
+
+from bs4 import BeautifulSoup as bs # Editing HTML through python
 
 def create_mail_body(token):
-    base = os.path.dirname(os.path.abspath(__file__))+"/templates/"
-    html = open(os.path.join(base, 'template.html'))
-    soup = bs(html, 'html.parser')
+	basePath = os.path.dirname(os.path.abspath(__file__))+"/templates/"
+	html = open(os.path.join(basePath, 'email_response_template.html'))
+	emailTemplate = bs(html, 'html.parser')
 
-    link = soup.find('a')
-    link['href'] = "http://127.0.0.1:5000/user?token="+token
+	linkLocation = emailTemplate.find('a')
+	linkLocation['href'] = "http://127.0.0.1:5000/user?token="+token
 
-    return str(soup)
+	return str(emailTemplate)
 
 
 load_dotenv()
@@ -30,10 +31,10 @@ app = Flask(__name__)
 captchaSiteKey = os.environ['CAPTCHA_SITE_KEY']
 captchaSecretKey = os.environ['CAPTCHA_SECRET_KEY']
 app.config.update({'RECAPTCHA_ENABLED': True,
-                   'RECAPTCHA_SITE_KEY':
-                   captchaSiteKey,
-                   'RECAPTCHA_SECRET_KEY':
-                   captchaSecretKey})
+				   'RECAPTCHA_SITE_KEY':
+				   captchaSiteKey,
+				   'RECAPTCHA_SECRET_KEY':
+				   captchaSecretKey})
 
 
 recaptcha = ReCaptcha(app=app)
@@ -49,84 +50,89 @@ app.config['MAIL_USE_SSL'] = True
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///Database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+
 hashingAlgorithm = os.environ['HASHING_ALGORITHM']
 
-db = SQLAlchemy(app)
-mail = Mail(app)
+database = SQLAlchemy(app)
+mailApp = Mail(app)
 
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    public_id = db.Column(db.String(50), unique=True)
-    email = db.Column(db.String(70), unique=True)
+class User(database.Model):
+	id = database.Column(database.Integer, primary_key=True)
+	public_id = database.Column(database.String(50), unique=True)
+	email = database.Column(database.String(70), unique=True)
 
 
 @app.route("/")
 def index():
-    return render_template("home.html")
+	return render_template("home.html")
 
 
 @app.route("/send_mail", methods=['post'])
 def send_mail(**kwargs):
-    if request.method == 'POST':
-        r = requests.post('https://www.google.com/recaptcha/api/siteverify',
-                          data={'secret':
-                                captchaSecretKey,
-                                'response':
-                                request.form['g-recaptcha-response']})
+	if request.method == 'POST':
+		googleResponse = requests.post('https://www.google.com/recaptcha/api/siteverify',
+						  data={'secret':
+								captchaSecretKey,
+								'response':
+								request.form['g-recaptcha-response']})
 
-        google_response = json.loads(r.text)
-        print('JSON: ', google_response)
+		googleResponse = json.loads(googleResponse.text)
+		# print('JSON: ', googleResponse) #debug
 
-        if google_response['success']:
-            print('SUCCESS')
-            email = request.form['email'].strip()
-            sub = 'Test email'
-            admin = os.environ['MAIL_USERNAME']
+		if googleResponse['success']:
+			# print('SUCCESS')
+			email = request.form['email'].strip()
+			subject = 'Your door to the chatroom'
+			admin = os.environ['MAIL_USERNAME']
 
-            user = User.query\
-                .filter_by(email=email)\
-                .first()
-            if not user:
-                # database ORM object
-                user = User(
-                    public_id=str(uuid.uuid4()),
-                    email=email,
-                )
-                db.session.add(user)
-                db.session.commit()
+			#Find user in database
+			user = User.query\
+				.filter_by(email=email)\
+				.first()
+			
+			if not user:
+				#Create user
+				# database ORM object
+				user = User(
+					public_id=str(uuid.uuid4()),
+					email=email,
+				)
+				database.session.add(user)
+				database.session.commit()
 
-            token = jwt.encode({
-                'public_id': user.public_id,
-                'exp': datetime.utcnow() + timedelta(minutes=30)
-            }, app.config['SECRET_KEY'], hashingAlgorithm)
+			token = jwt.encode({
+				'public_id': user.public_id,
+				'exp': datetime.utcnow() + timedelta(minutes=30)
+			}, app.config['SECRET_KEY'], hashingAlgorithm)
 
-            mailBody = create_mail_body(token)
-            message = Message(subject=sub, sender=admin,
-                              recipients=email.split(), html=mailBody)
-            mail.send(message)
-            return render_template("Submit.html")
+			mailBody = create_mail_body(token)
+			mailMessage = Message(subject=subject, sender=admin,
+							  recipients=email.split(), html=mailBody)
+			mailApp.send(mailMessage)
+			return render_template("submit.html")
 
-        else:
-            # FAILED
-            print('FAILED')
-            return render_template('home.html')
+		else:
+			# Reroute to home page if captcha fails 
+			return redirect('/')
 
 
+#Just a dummy route for the chatroom, prints the email which was used to sign-in
 @app.route('/user', methods=['GET'])
 def get_all_users():
-    args = request.args
-    token = args.get('token')
-    data = jwt.decode(token, app.config['SECRET_KEY'], hashingAlgorithm)
+	args = request.args
+	token = args.get('token')
+	data = jwt.decode(token, app.config['SECRET_KEY'], hashingAlgorithm)
 
-    users = User.query.all()
-    output = []
-    for user in users:
-        output.append({
-            'email': user.email
-        })
-    return jsonify({'users': output})
+	users = User.query.all()
+	output = []
+	for user in users:
+		if user.public_id == data['public_id']:
+			output.append({
+				'email': user.email
+			})
+	return jsonify({'users': output})
 
 
 if __name__ == '__main__':
-    app.run()
+	app.run()
