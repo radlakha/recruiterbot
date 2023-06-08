@@ -14,9 +14,12 @@
     - Start a new terminal session so that the recently edited .bashrc is in effect. Notice (.venv) in the prompt. Also, check for your OpenAI API key using the command `echo $OPENAI_API_KEY`
     - Issue command `make install`
 
-How to run?
-1. Add your OpenAI key in "bot_files/config.py"
-2. Add resumes to the folder "files" or through the UI. (Note: Currently the embeddings are created and loaded on the existing database. 
-3. If you want to recreate the embeddings, Run update_database.py
-4. Run index.py and open localhost to see the UI.
+- How to run the bot
+    - Change your directory to /ChatBot `cd /workspaces/recruiterbot/ChatBot`
+    - To run on available embedding database run index.py and open localhost to see the UI `python index.py`
  
+- How to create the resume embeddings database
+    - Change your directory to /ChatBot `cd /workspaces/recruiterbot/ChatBot`
+    - If there is no "files" directory, create one `mkdir files`
+    - Copy your resumes to this directory
+    - Run update_database `python bot_files/update_database.py` from the ChatBot directory
