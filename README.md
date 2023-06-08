@@ -18,8 +18,8 @@
     - Change your directory to /ChatBot `cd /workspaces/recruiterbot/ChatBot`
     - To run on available embedding database run index.py and open localhost to see the UI `python index.py`
  
-- How to update the resume database
+- How to create the resume embeddings database
     - Change your directory to /ChatBot `cd /workspaces/recruiterbot/ChatBot`
     - If there is no "files" directory, create one `mkdir files`
     - Copy your resumes to this directory
-    - Run update_database `python botfiles/update_database.py`
+    - Run update_database `python bot_files/update_database.py` from the ChatBot directory
