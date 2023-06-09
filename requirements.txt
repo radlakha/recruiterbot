@@ -11,3 +11,8 @@ Werkzeug==2.3.3
 openai==0.27.1
 faiss-cpu==1.7.3
 tiktoken==0.4.0
+flask_mail==0.9.1
+flask_sqlalchemy==3.0.3
+PyJWT==2.7.0
+bs4==0.0.1
+python-dotenv==1.0.0
