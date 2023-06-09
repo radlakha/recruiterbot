@@ -19,7 +19,7 @@ def create_mail_body(token):
 	emailTemplate = bs(html, 'html.parser')
 
 	linkLocation = emailTemplate.find('a')
-	linkLocation['href'] = "http://127.0.0.1:5000/user?token="+ str(token, 'utf-8')
+	linkLocation['href'] = "http://127.0.0.1:5000/user?token="+ token
 
 	return str(emailTemplate)
 
