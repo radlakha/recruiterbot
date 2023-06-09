@@ -2,7 +2,7 @@ import os
 from dotenv.main import load_dotenv 
 
 import requests
-from flask_recaptcha import ReCaptcha
+# from flask_recaptcha import ReCaptcha
 from flask import *
 from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy # A basic SQL databse
@@ -37,7 +37,7 @@ app.config.update({'RECAPTCHA_ENABLED': True,
 				   captchaSecretKey})
 
 
-recaptcha = ReCaptcha(app=app)
+# recaptcha = ReCaptcha(app=app)
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
