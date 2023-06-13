@@ -21,4 +21,4 @@
     - Run index.py and open localhost to see the UI.
  
 - **Setting Up SQL Database and Server on Azure.**
-    - Please run the ARM template azureSQLDeploy. Detailed instrutcions have been provided in the Wiki of this repository [here](https://github.com/radlakha/recruiterbot/wiki/Set-Up-Instructions-For-Azure-SQL-Database-and-Server-and-Azure-Function).
+    - Please run the ARM template azureSQLDeploy. Detailed instrutcions have been provided in the Wiki of this repository [here](https://github.com/radlakha/recruiterbot/wiki/Set-Up-Instructions-For-Azure-SQL-Database-and-Server).
